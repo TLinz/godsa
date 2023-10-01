@@ -136,6 +136,9 @@ func (sl *SkipList) Delete(key int) error {
 	}
 	for i := 0; i < len(res.prevs); i++ {
 		res.prevs[i].next[i] = res.next[i]
+		if res.next[i] != nil {
+			res.next[i].prevs[i] = res.prevs[i]
+		}
 	}
 	return nil
 }
