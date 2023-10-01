@@ -3,7 +3,6 @@ package godsa
 import (
 	"errors"
 	"math/rand"
-	"time"
 )
 
 var insertMap map[int]*node
@@ -19,12 +18,10 @@ type SkipList struct {
 	sentinel    *node
 	maxLevel    int
 	probability float64
-	randSeed    *rand.Rand
 }
 
 func (sl *SkipList) flipCoin() bool {
-	res := float64(sl.randSeed.Int63()) / (1 << 63)
-	return res < sl.probability
+	return rand.Float64() < sl.probability
 }
 
 func (sl *SkipList) newNode(key, value int) *node {
@@ -44,7 +41,6 @@ func NewSkipList(maxLevel int, probability float64) *SkipList {
 	sl := &SkipList{
 		maxLevel:    maxLevel,
 		probability: probability,
-		randSeed:    rand.New(rand.NewSource(time.Now().UnixNano())),
 	}
 	sl.sentinel = &node{
 		key:   -1,
@@ -142,27 +138,3 @@ func (sl *SkipList) Delete(key int) error {
 	}
 	return nil
 }
-
-// func (sl *SkipList) Print() {
-// 	cur := sl.sentinel
-// 	for cur != nil {
-// 		fmt.Printf("key:%d ", cur.key)
-// 		for i := 0; i < len(cur.next); i++ {
-// 			if cur.next[i] != nil {
-// 				fmt.Printf("i%d:%d ", i, cur.next[i].key)
-// 			} else {
-// 				fmt.Printf("nil ")
-// 			}
-// 		}
-// 		for i := 0; i < len(cur.prevs); i++ {
-// 			if cur.prevs[i] != nil {
-// 				fmt.Printf("i%d:%d ", i, cur.prevs[i].key)
-// 			} else {
-// 				fmt.Printf("nil ")
-// 			}
-// 		}
-// 		fmt.Println()
-// 		cur = cur.next[0]
-// 	}
-// 	fmt.Println()
-// }
