@@ -12,6 +12,7 @@ type node struct {
 	key   int
 	value int
 	next  []*node // next[0] represents the lowest level
+	prevs []*node
 }
 
 type SkipList struct {
@@ -35,6 +36,7 @@ func (sl *SkipList) newNode(key, value int) *node {
 		key:   key,
 		value: value,
 		next:  make([]*node, level),
+		prevs: make([]*node, level),
 	}
 }
 
@@ -112,9 +114,52 @@ func (sl *SkipList) Insert(key, value int) error {
 			nextNode := insertMap[i].next[i]
 			n.next[i] = nextNode
 			insertMap[i].next[i] = n
+
+			n.prevs[i] = insertMap[i]
+			if nextNode != nil {
+				nextNode.prevs[i] = n
+			}
 		}
 	} else {
 		res.value = value
 	}
 	return nil
 }
+
+func (sl *SkipList) Delete(key int) error {
+	if key < 0 {
+		return errors.New("key must >= 0")
+	}
+	res, err := sl.Search(key)
+	if err != nil {
+		return errors.New("key does not exist")
+	}
+	for i := 0; i < len(res.prevs); i++ {
+		res.prevs[i].next[i] = res.next[i]
+	}
+	return nil
+}
+
+// func (sl *SkipList) Print() {
+// 	cur := sl.sentinel
+// 	for cur != nil {
+// 		fmt.Printf("key:%d ", cur.key)
+// 		for i := 0; i < len(cur.next); i++ {
+// 			if cur.next[i] != nil {
+// 				fmt.Printf("i%d:%d ", i, cur.next[i].key)
+// 			} else {
+// 				fmt.Printf("nil ")
+// 			}
+// 		}
+// 		for i := 0; i < len(cur.prevs); i++ {
+// 			if cur.prevs[i] != nil {
+// 				fmt.Printf("i%d:%d ", i, cur.prevs[i].key)
+// 			} else {
+// 				fmt.Printf("nil ")
+// 			}
+// 		}
+// 		fmt.Println()
+// 		cur = cur.next[0]
+// 	}
+// 	fmt.Println()
+// }
